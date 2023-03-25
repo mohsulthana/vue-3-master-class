@@ -2,6 +2,7 @@
 import ThreadList from '@/components/ThreadList.vue'
 import sourceData from '@/data.json'
 import { computed } from 'vue'
+import { useThreadsStore } from '../store/ThreadsStore'
 
 const props = defineProps({
   id: {
@@ -14,7 +15,8 @@ const forum = computed(() => {
   return sourceData.forums.find((forum) => forum.id === props.id)
 })
 const threads = computed(() => {
-  return sourceData.threads.filter((thread) => thread.forumId === props.id)
+  const threadStore = useThreadsStore()
+  return forum.value.threads.map((threadId) => threadStore.thread(threadId))
 })
 </script>
 

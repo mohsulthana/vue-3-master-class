@@ -1,5 +1,6 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, computed } from 'vue'
+
 const emits = defineEmits('save', 'cancel')
 const props = defineProps({
   title: {
@@ -15,6 +16,10 @@ const props = defineProps({
 const form = reactive({
   title: props.title,
   text: props.text
+})
+
+const existing = computed(() => {
+  return !!props.title
 })
 
 function save() {
@@ -43,7 +48,9 @@ function save() {
 
     <div class="btn-group">
       <button class="btn btn-ghost" @click="emits('cancel')">Cancel</button>
-      <button class="btn btn-blue" type="submit" name="Publish">Publish</button>
+      <button class="btn btn-blue" type="submit" name="Publish">
+        {{ existing ? 'Update' : 'Publish' }}
+      </button>
     </div>
   </form>
 </template>

@@ -1,6 +1,6 @@
 <script setup>
-import { reactive } from 'vue'
-import sourceData from '@/data.json'
+import { computed } from 'vue'
+import { useUserStore } from '../store/UserStore'
 
 const props = defineProps({
   posts: {
@@ -9,8 +9,15 @@ const props = defineProps({
   }
 })
 
-const users = reactive(sourceData.users)
-const userById = (userId) => users.find((u) => u.id === userId)
+const userStore = useUserStore()
+
+const users = computed(() => {
+  return userStore.users
+})
+
+const userById = (userId) => {
+  return userStore.user(userId)
+}
 </script>
 
 <template>
@@ -25,7 +32,8 @@ const userById = (userId) => users.find((u) => u.id === userId)
           <img class="avatar-large" :src="userById(post.userId).avatar" alt="" />
         </a>
 
-        <p class="desktop-only text-small">{{ posts.length }} posts</p>
+        <p class="desktop-only text-small">{{ userById(post.userId).postsCount }} posts</p>
+        <p class="desktop-only text-small">{{ userById(post.userId).threadsCount }} threads</p>
       </div>
 
       <div class="post-content">

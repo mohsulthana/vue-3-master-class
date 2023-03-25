@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from 'vue'
-import { useThreadsStore } from '../store/ThreadsStore';
-import { usePostsStore } from '../store/PostsStore';
+import { useThreadsStore } from '../store/ThreadsStore'
+import { usePostsStore } from '../store/PostsStore'
 import PostList from '@/components/PostList.vue'
-import PostEditor from '@/components/PostEditor.vue';
+import PostEditor from '@/components/PostEditor.vue'
 
 const threadStore = useThreadsStore()
 const postStore = usePostsStore()
@@ -18,7 +18,7 @@ const props = defineProps({
 
 // threads
 const thread = computed(() => {
-  return threadStore.threads.find(thread => thread.id === props.id)
+  return threadStore.thread(props.id)
 })
 
 // post
@@ -36,9 +36,22 @@ const addPost = (eventData) => {
 
 <template>
   <div class="col-large push-top">
-    <h1>{{ thread.title }}</h1>
+    <h1>
+      {{ thread.title }}
+      <router-link :to="{ name: 'ThreadEdit', id: id }" class="btn-green btn-small">
+        Edit Thread
+      </router-link>
+    </h1>
+
+    <p>
+      By <a href="#" class="link-unstyled"> {{ thread.author.name }} </a>,
+      <app-date :timestamp="thread.publishedAt" />.
+      <span style="float: right; margin-top: 2px" class="hide-mobile text-faded text-small">
+        {{ thread.repliesCount }} replies by {{ thread.contributorsCount }} contributors
+      </span>
+    </p>
 
     <post-list :posts="threadPosts" />
-    <post-editor @save="addPost"/>
+    <post-editor @save="addPost" />
   </div>
 </template>

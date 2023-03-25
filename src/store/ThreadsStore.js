@@ -3,6 +3,7 @@ import sourceData from '@/data.json'
 import { usePostsStore } from './PostsStore'
 import { useForumStore } from './ForumStore'
 import { useUserStore } from './UserStore'
+import { findById } from '../helpers'
 
 export const useThreadsStore = defineStore('ThreadsStore', {
   state: () => {
@@ -10,7 +11,26 @@ export const useThreadsStore = defineStore('ThreadsStore', {
       threads: sourceData.threads
     }
   },
-  getters: {},
+  getters: {
+    thread: (state) => {
+      return (id) => {
+        const thread = findById(state.threads, id)
+        return {
+          ...thread,
+          get author() {
+            const userStore = useUserStore()
+            return findById(userStore.users, thread.userId)
+          },
+          get repliesCount() {
+            return thread.posts.length - 1
+          },
+          get contributorsCount() {
+            return thread.contributors.length
+          }
+        }
+      }
+    }
+  },
   actions: {
     async createThread({ text, title, forumId }) {
       const postStore = usePostsStore()
@@ -26,33 +46,35 @@ export const useThreadsStore = defineStore('ThreadsStore', {
       postStore.createPost({ text, threadId: id })
 
       // appendThreadToForum
-      const forum = forumStore.forums.find((forum) => forum.id === forumId)
+      const forum = findById(forumStore.forums, forumId)
       forum.threads = forum.threads || []
       forum.threads.push(id)
 
       // appendThreadToUser
-      const user = userStore.users.find((user) => user.id === userId)
+      const user = findById(userStore.users, userId)
       user.threads = user.threads || []
       user.threads.push(id)
 
-      return this.threads.find((thread) => thread.id === id)
+      return findById(this.threads, id)
     },
     async updateThread({ title, text, id }) {
       const postStore = usePostsStore()
 
-      const thread = this.threads.find((thread) => thread.id === id)
-      const post = postStore.posts.find((post) => post.id === thread.posts[0])
+      const thread = findById(this.threads, id)
+      const post = findById(postStore.posts, thread.posts[0]).find(
+        (post) => post.id === thread.posts[0]
+      )
       const newThread = { ...thread, title }
       const newPost = { ...post, text }
 
-      const postIndex = postStore.posts.findIndex(p => p.id === newPost.id)
+      const postIndex = postStore.posts.findIndex((p) => p.id === newPost.id)
       if (newPost.id && postIndex !== -1) {
         postStore.posts[postIndex] = newPost
       } else {
         postStore.push(newPost)
       }
 
-      const threadIndex = this.threads.findIndex(t => t.id === newThread.id)
+      const threadIndex = this.threads.findIndex((t) => t.id === newThread.id)
       if (newThread.id && threadIndex !== -1) {
         this.threads[threadIndex] = newThread
       } else {

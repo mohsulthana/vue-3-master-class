@@ -33,6 +33,10 @@ const save = async ({ title, text }) => {
   })
   router.push({ name: 'ThreadShow', params: { id: thread.id } })
 }
+
+function cancel() {
+  router.push({ name: 'ThreadShow', params: { id: props.id } })
+}
 </script>
 
 <template>
